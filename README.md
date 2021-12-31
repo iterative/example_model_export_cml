@@ -1,6 +1,6 @@
-# Training and saving models with CML on a dedicated runner
-
 [View properly formatted guide in Notion](https://jewel-basket-ec8.notion.site/Training-and-saving-models-with-CML-on-a-dedicated-runner-0146e56e8add4315add2a6d00a5bb085)
+
+# Training and saving models with CML on a dedicated runner
 
 When you first develop a machine learning model, you will probably do so on your local machine. You can easily change algorithms, parameters, and input data right in your text editor, notebook, or terminal. But what happens when you already have a model deployed and want to run multiple experiments? Or if you want to deploy a new version on a daily basis?
 
@@ -16,6 +16,8 @@ At the end of this guide we will have set up the following:
 - A workflow on Github actions to train a model every time we change data, model code, or parameters;
 - Model training on an Amazon Web Services (AWS) instance that has been provisioned specifically for the training job;
 - Automatic saving of trained models in your Github repository and/or a DVC remote, along with a report of their performance.
+
+All files needed for this guide can be found in this repository: https://github.com/RCdeWit/CML_train_and_export
 
 <aside>
 💡 This guide can be followed on its own, but also as an extension to this earlier guide: [https://cml.dev/doc/self-hosted-runners](https://cml.dev/doc/self-hosted-runners)
@@ -35,6 +37,8 @@ Before we begin, make sure you have the following things set up:
 2. You have created a `PERSONAL_ACCESS_TOKEN` on Github ([guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)).
 3. You have created an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` on AWS ([guide](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html)).
 4. You have added the `PERSONAL_ACCES_TOKEN`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` as Github secrets ([guide](https://docs.github.com/en/actions/security-guides/encrypted-secrets)).
+
+It also helps to clone the following repository: https://github.com/RCdeWit/CML_train_and_export
 
 <aside>
 ⚠️ Make sure to use Github secrets rather than copy paste these variables directly in your source. If you don’t, others can act on your behalf on AWS. Github will simply block your access token.
@@ -124,7 +128,7 @@ In both cases the other files (`confusion_matrix.png` etc) will be pushed direct
 
 ## 1. Push the model directly to a git repository
 
-If the model is small we might want to commit it to our repository automatically. The following Github workflow deploys a runner on AWS, trains and saves a model (see `train.py`), pushes the results to a new experiment branch, and creates a merge request for those results.
+If the model is small we might want to commit it to our repository automatically. The following Github workflow deploys a runner on AWS, generates some data, trains and saves a model (see `train.py`), pushes the results to a new experiment branch, and creates a merge request for those results.
 
 Using `cml pr "."` is the command that takes all of our files, pushes them to a new branch, and creates a merge request. Because we saved the model as a binary in `model/random_forest.joblib` this file is included in the merge request.
 
@@ -191,7 +195,7 @@ We could, for example, use our runner to import our training data from a table i
 
 </aside>
 
-In order to use DVC we need to set up a remote. This is where your model files will end up, while DVC keeps track of their respective versions. DVC supports a plethora of remotes, including Amazon S3, Microsoft Azure Blob Storage, and Google Cloud Storage. For this guide we will be using Google Drive as our remote.
+The first time you are using DVC for a project you need to run `dvc init` in the project directory. Then, in order to start using DVC, you need to set up a remote. This is where your model files will end up, while DVC keeps track of their respective versions. DVC supports a plethora of remotes, including Amazon S3, Microsoft Azure Blob Storage, and Google Cloud Storage. For this guide we will be using Google Drive as our remote.
 
 You can follow [this guide](https://dvc.org/doc/user-guide/setup-google-drive-remote#setup-a-google-drive-dvc-remote) to set up Google Drive as your remote. Make sure to [set up a GCP project](https://dvc.org/doc/user-guide/setup-google-drive-remote#using-a-custom-google-cloud-project-recommended) and to [use a service account](https://dvc.org/doc/user-guide/setup-google-drive-remote#using-service-accounts).
 
