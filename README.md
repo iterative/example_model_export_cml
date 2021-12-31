@@ -1,5 +1,7 @@
 # Training and saving models with CML on a dedicated runner
 
+[View properly formatted guide in Notion](https://jewel-basket-ec8.notion.site/Training-and-saving-models-with-CML-on-a-dedicated-runner-0146e56e8add4315add2a6d00a5bb085)
+
 When you first develop a machine learning model, you will probably do so on your local machine. You can easily change algorithms, parameters, and input data right in your text editor, notebook, or terminal. But what happens when you already have a model deployed and want to run multiple experiments? Or if you want to deploy a new version on a daily basis?
 
 [Continuous Machine Learning (CML)](https://cml.dev/) helps you with this. It is an open-source library for implementing continuous integration and delivery (CI/CD) in machine learning projects. This way we can define a pipeline to train a model and keep track of various versions.
