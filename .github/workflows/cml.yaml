@@ -1,0 +1,46 @@
+name: CML
+on: # Here we use two triggers; on push and daily at 08:00
+  push:
+  schedule:
+    - cron: '0 8 * * *'
+jobs:
+  deploy-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: iterative/setup-cml@v1
+      - uses: actions/checkout@v2
+      - name: Deploy runner on EC2
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cml runner \
+              --cloud=aws \
+              --cloud-region=eu-west \
+              --cloud-type=m \
+              --cloud-gpu=nogpu \
+              --single
+  train-model:
+    needs: deploy-runner
+    runs-on: [self-hosted]
+    timeout-minutes: 120 # 2h
+    container:
+      image: docker://iterativeai/cml:0-dvc2-base1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Train model
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          pip install -r requirements.txt
+          python get_data.py
+          python train.py
+
+          # Create CML report
+          cat model/metrics.txt >> model/report.md
+          cml publish model/confusion_matrix.png --md >> model/report.md
+          cml send-comment model/report.md
+
+          # Create pull request
+          cml pr "."

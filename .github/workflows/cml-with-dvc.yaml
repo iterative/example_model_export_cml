@@ -1,0 +1,66 @@
+name: CML-with-DVC
+on: # Here we use two triggers; on push and daily at 08:00
+  push:
+  schedule:
+    - cron: '0 8 * * *'
+jobs:
+  deploy-runner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: iterative/setup-dvc@v1
+      - uses: iterative/setup-cml@v1
+      - uses: actions/checkout@v2
+      - name: Deploy runner on EC2
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cml runner \
+              --cloud=aws \
+              --cloud-region=eu-west \
+              --cloud-type=m \
+              --cloud-gpu=nogpu \
+              --single
+  train-model:
+    needs: deploy-runner
+    runs-on: [self-hosted]
+    timeout-minutes: 120 # 2h
+    container:
+      image: docker://iterativeai/cml:0-dvc2-base1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Train model
+        env:
+          REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+        run: |
+          pip install -r requirements.txt
+          python get_data.py
+          python train.py
+
+          # Create CML report
+          cat model/metrics.txt >> model/report.md
+          cml publish model/confusion_matrix.png --md >> model/report.md
+          cml send-comment model/report.md
+
+          # Connect to your DVC remote storage and push the model to there
+
+          dvc add model/random_forest.joblib # This automatically adds the model to your .gitignore
+
+          # GDRIVE_CREDENTIALS_DATA appears not to be read automatically
+          # Manually write it to creds.json and read that file
+          echo -E '${{ secrets.GDRIVE_CREDENTIALS_DATA }}' > creds.json
+
+          dvc remote add -d -f myremote gdrive://${{ secrets.GOOGLE_DRIVE_URI }}
+          dvc remote modify myremote gdrive_use_service_account true
+          dvc remote modify myremote --local gdrive_service_account_json_file_path creds.json
+
+          dvc push
+
+          # Either do this or add the file to your .gitignore
+          # Just make sure not to push it to your repository
+          rm creds.json
+
+          # Create pull request for the remaining files
+          cml pr "."
