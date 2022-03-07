@@ -19,7 +19,7 @@ jobs:
           cml runner \
               --cloud=aws \
               --cloud-region=eu-west \
-              --cloud-type=m \
+              --machine=t2.micro
               --cloud-gpu=nogpu \
               --single
   train-model:
