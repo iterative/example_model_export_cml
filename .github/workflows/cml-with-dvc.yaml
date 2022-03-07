@@ -21,7 +21,6 @@ jobs:
               --cloud=aws \
               --cloud-region=eu-west \
               --cloud-type=t2.micro
-              --cloud-gpu=nogpu \
               --single
   train-model:
     needs: deploy-runner
