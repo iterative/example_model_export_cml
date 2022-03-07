@@ -1,6 +1,6 @@
 name: CML
 on: # Here we use three triggers; on push, on manual trigger, and daily at 08:00
-  push:
+  # push:
   workflow_dispatch:
   # schedule:
   #   - cron: '0 8 * * *'
@@ -16,11 +16,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          cml runner --single \
+          cml runner \
               --cloud=aws \
               --cloud-region=eu-west \
               --cloud-type=m \
               --cloud-gpu=nogpu \
+              --single
   train-model:
     needs: deploy-runner
     runs-on: [self-hosted]

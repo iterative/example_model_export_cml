@@ -1,6 +1,6 @@
 name: CML-with-DVC
 on: # Here we use three triggers; on push, on manual trigger, and daily at 08:00
-  push:
+  # push:
   workflow_dispatch:
   # schedule:
   #   - cron: '0 8 * * *'
