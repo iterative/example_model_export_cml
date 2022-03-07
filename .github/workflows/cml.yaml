@@ -19,7 +19,7 @@ jobs:
           cml runner \
               --cloud=aws \
               --cloud-region=eu-west \
-              --cloud-type=m
+              --cloud-type=m \
               --single
   train-model:
     needs: deploy-runner
