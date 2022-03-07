@@ -19,7 +19,8 @@ jobs:
           cml runner --single \
               --cloud=aws \
               --cloud-region=eu-west \
-              --cloud-type=t2.micro
+              --cloud-type=m \
+              --cloud-gpu=nogpu \
   train-model:
     needs: deploy-runner
     runs-on: [self-hosted]
