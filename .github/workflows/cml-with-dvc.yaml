@@ -17,10 +17,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          cml runner --single \
+          cml runner \
               --cloud=aws \
               --cloud-region=eu-west \
               --cloud-type=t2.micro
+              --single
   train-model:
     needs: deploy-runner
     runs-on: [self-hosted]
