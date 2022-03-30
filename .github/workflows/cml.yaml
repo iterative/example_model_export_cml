@@ -1,9 +1,8 @@
 name: CML
-on: # Here we use three triggers; on push, on manual trigger, and daily at 08:00
-  # push:
+on: # Here we use two triggers: manually and daily at 08:00
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 8 * * *'
+  schedule:
+    - cron: '0 8 * * *'
 jobs:
   deploy-runner:
     runs-on: ubuntu-latest
@@ -38,7 +37,7 @@ jobs:
           python train.py
 
           # Create pull request
-          cml pr .
+          cml pr model/random_forest.joblib
 
           # Create CML report
           cat model/metrics.txt > report.md
