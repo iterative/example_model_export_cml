@@ -1,9 +1,8 @@
 name: CML with DVC
-on: # Here we use three triggers; on push, on manual trigger, and daily at 08:00
-  # push:
+on: # Here we use two triggers: manually and daily at 08:00
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 8 * * *'
+  schedule:
+    - cron: '0 8 * * *'
 jobs:
   deploy-runner:
     runs-on: ubuntu-latest
@@ -42,7 +41,7 @@ jobs:
         run: |
           cml ci
           pip install -r requirements.txt
-          # should this be `dvc exp run/repro`?
+          
           python get_data.py
           python train.py
 
@@ -53,10 +52,6 @@ jobs:
           dvc remote modify myremote gdrive_use_service_account true
 
           dvc push
-
-          # Either do this or add the file to your .gitignore
-          # Just make sure not to push it to your repository
-          rm creds.json
 
           # Create pull request for the remaining files
           cml pr .
