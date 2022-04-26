@@ -38,6 +38,7 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
+          set -x
           cml ci
           pip install -r requirements.txt
           python get_data.py
