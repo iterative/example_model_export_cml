@@ -41,14 +41,13 @@ jobs:
         run: |
           cml ci
           pip install -r requirements.txt
-
+          
           python get_data.py
           python train.py
 
-          # This automatically adds the model to your .gitignore
-          dvc add model/random_forest.joblib
-
           # Connect to your DVC remote storage and push the model to there
+          dvc add model/random_forest.joblib # This automatically adds the model to your .gitignore
+
           dvc remote add -d -f myremote gdrive://${{ secrets.GOOGLE_DRIVE_URI }}
           dvc remote modify myremote gdrive_use_service_account true
 
